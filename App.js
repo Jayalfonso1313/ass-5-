@@ -1,16 +1,18 @@
+import { TouchableHighlight } from 'react-native';
 import React, { Component } from 'react';
+import { Image } from 'react-native';
+
 import {
   View,
   ImageBackground,
   StyleSheet,
   Alert,
-  TouchableHighlight,
-  Image,
   BackHandler,
 } from 'react-native';
 import MessageList from "./components/MessageList";
 import { createImageMessage, createLocationMessage, createTextMessage } from "./utils/MessageUtils";
-
+import * as Location from 'expo-location';
+import * as ImagePicker from 'expo-image-picker';
 import Toolbar from "./components/Toolbar";
 
 class App extends Component {
@@ -18,7 +20,6 @@ class App extends Component {
     messages: [
       createImageMessage('https://unsplash.it/300/300'),
       createTextMessage('Alfonso'),
-      createTextMessage('Jay'),
       createLocationMessage({
         latitude: 14.6256144,
         longitude: 121.061769,
@@ -90,6 +91,55 @@ class App extends Component {
     });
   };
 
+  handlePressToolbarCamera = async () => {
+    const options = {
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    };
+  
+    const result = await ImagePicker.launchImageLibraryAsync(options);
+  
+    if (!result.canceled) {
+      // Check if "assets" array is present and not empty
+      if (result.assets && result.assets.length > 0) {
+        const selectedAsset = result.assets[0];
+        this.handleSubmitImage(selectedAsset.uri);
+      } else {
+        console.warn('No assets selected');
+      }
+    }
+  };
+  
+  handleSubmitImage = (imageUri) => {
+    const { messages } = this.state;
+    this.setState({
+      messages: [createImageMessage(imageUri), ...messages],
+    });
+  };
+
+  handlePressToolbarLocation = async () => {
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status === 'granted') {
+        let location = await Location.getCurrentPositionAsync({});
+        this.handleSubmitLocation(location); // Handle the location here
+      } else {
+        console.log('Location permission denied');
+      }
+    } catch (error) {
+      console.error('Error getting location:', error);
+    }
+  };
+
+  handleSubmitLocation = (location) => {
+    const { messages } = this.state;
+    this.setState({
+      messages: [createLocationMessage(location.coords), ...messages],
+    });
+  };
+
   renderMessageList() {
     const { messages } = this.state;
 
@@ -100,7 +150,7 @@ class App extends Component {
     );
   }
 
-  renderFullscreenImage = () => {
+  renderFullscreenImage() {
     const { messages, fullscreenImageId } = this.state;
 
     if (!fullscreenImageId) return null;
@@ -125,18 +175,17 @@ class App extends Component {
         </TouchableHighlight>
       </View>
     );
-  };
+  }
 
   render() {
     return (
       <View style={styles.container}>
         <ImageBackground
-          source={require('./assets/Rawr.jpg')}
+          source={require('./assets/wallpaper.jpg')}
           style={styles.backgroundImage}
         >
           {this.renderMessageList()}
           {this.renderFullscreenImage()}
-          {/* Add the Toolbar component */}
           <Toolbar
             isFocused={this.state.isInputFocused}
             onSubmit={this.handleSubmit}

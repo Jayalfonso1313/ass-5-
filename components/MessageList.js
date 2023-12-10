@@ -1,6 +1,6 @@
 import React from 'react';
 import { PropTypes } from 'prop-types';
-import { FlatList, Image, StyleSheet, Text, View, Alert, TouchableOpacity } from 'react-native';
+import { FlatList, Image, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { MessageShape } from '../utils/MessageUtils';
 
@@ -83,7 +83,6 @@ export default class MessageList extends React.Component {
   }
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -111,19 +110,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   image: {
-    height: 200,
-    width: 200,
-    borderRadius: 100,
+    height: 150,
+    width: 150,
+    borderRadius: 0, // Updated for box shape
   },
   mapContainer: {
-    height: 200,
-    width: 200,
-    borderRadius: 100,
+    height: 150,
+    width: 150,
+    borderRadius: 0, // Updated for box shape
     overflow: 'hidden',
   },
   map: {
     flex: 1,
-    borderRadius: 8,
+    borderRadius: 0, // Updated for box shape
   },
   locationText: {
     color: 'red',
